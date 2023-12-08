@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    command: python -u app.py
+    # flask requires SIGINT to stop gracefully
+    # (default stop signal from Compose is SIGTERM)
+    stop_signal: SIGINT
+    #restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - DB_PORT=3306
+      - PG_USER=test
+      - PG_PASSWORD=test
+      - PG_DATABASE=mydb
+    # see https://github.com/knknkn1162/100knocks-preprocess/blob/00b5428bea8589bb225748eeb5ebb468406ec040/docker-compose.yml#L40-L42
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    # default portは3306
+    image: mysql:5.7
+    #restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=mydb
+      - TZ='Asia/Tokyo'
+    volumes:
+      #初期データをマウントする場所
+      - ./db:/docker-entrypoint-initdb.d
+      # 名前付きvolumeをdocker-composeで設定し、コンテナの/var/lib/mysqlに紐づける
+      # /var/lib/mysqlがある限り init処理は実行されない
+      - data:/var/lib/mysql
+    #command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci'] 
+
+volumes:
+  data: # 名前付きボリュームも消してまっさらしたい
