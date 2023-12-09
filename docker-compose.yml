@@ -3,13 +3,13 @@ version: "3.8"
 services:
   web:
     build: .
-    command: python -u app.py
     # flask requires SIGINT to stop gracefully
     # (default stop signal from Compose is SIGTERM)
     stop_signal: SIGINT
     #restart: always
     ports:
-      - "5000:5000"
+      # A:B ; Map port A on the Docker host to TCP port B in the container.
+      - "80:5000"
     volumes:
       - .:/app
     env_file:
@@ -30,7 +30,7 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppass"]
       interval: 20s
       timeout: 5s
-      retries: 6
+      retries: 3
     volumes:
       #初期データをマウントする場所
       - ./db:/docker-entrypoint-initdb.d
