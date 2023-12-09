@@ -12,23 +12,25 @@ services:
       - "5000:5000"
     volumes:
       - .:/app
-    environment:
-      - DB_PORT=3306
-      - PG_USER=test
-      - PG_PASSWORD=test
-      - PG_DATABASE=mydb
-    # see https://github.com/knknkn1162/100knocks-preprocess/blob/00b5428bea8589bb225748eeb5ebb468406ec040/docker-compose.yml#L40-L42
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
   db:
-    # default portは3306
     image: mysql:5.7
     #restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=pass
       - MYSQL_DATABASE=mydb
       - TZ='Asia/Tokyo'
+    env_file:
+      - .env
+    healthcheck:   # here
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppass"]
+      interval: 20s
+      timeout: 5s
+      retries: 6
     volumes:
       #初期データをマウントする場所
       - ./db:/docker-entrypoint-initdb.d

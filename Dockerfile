@@ -1,4 +1,4 @@
 FROM python:3.12
 WORKDIR /app
-COPY show.html /app/show.html
+COPY . /app/
 RUN pip install -r requirements.txt
